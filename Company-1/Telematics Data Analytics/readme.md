@@ -109,3 +109,10 @@ Vehicle-Telemetry-Data-Processing/
 │
 └── requirements.txt               # Python dependencies for the project (e.g., pandas, numpy, openpyxl)
 ```
+---
+
+## Confidentiality and Data Usage
+
+This project does not use any proprietary, confidential, or sensitive data. The datasets used in this project are either simulated, anonymized, or provided as placeholders for the sake of illustrating the data processing pipeline and methodology.
+
+All input files, configuration templates, and reference data are either empty or mock datasets, ensuring that no real company or user data is exposed or used. The project serves as a demonstration of data processing techniques for vehicle telemetry analysis, showcasing how data could be handled, processed, and visualized in a production-like environment.
