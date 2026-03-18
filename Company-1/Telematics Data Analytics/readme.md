@@ -110,6 +110,12 @@ Vehicle-Telemetry-Data-Processing/
 └── requirements.txt               # Python dependencies for the project (e.g., pandas, numpy, openpyxl)
 ```
 ---
+## Improvements
+
+- Refactored data ingestion module for scalability and robustness
+- Implemented recursive file loading using os.walk
+- Added structured logging for better debugging
+---
 
 ## Confidentiality and Data Usage
 
