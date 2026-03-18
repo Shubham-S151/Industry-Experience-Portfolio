@@ -51,7 +51,7 @@ Vehicle telematics data is highly valuable for assessing vehicle performance but
 
 ---
 
-## 6. Deployment (Optional)
+## 6. Deployment
 - **Automated Process:** This project is deployed on AWS Databricks and is triggered automatically whenever a new vehicle is added to the database.
 - **Interactive Execution:** Users can run the code manually using Jupyter notebooks or Python scripts, making it easy for the team to execute as needed.
 - **Dashboard:** A dashboard for visualizing raw data and insights is created on Databricks, allowing team members to interact with the data.
