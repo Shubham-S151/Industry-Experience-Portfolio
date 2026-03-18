@@ -1,37 +1,64 @@
-import os 
+import os
 import pandas as pd
+import logging
+from typing import List
 
-def get_files_paths(path):
-    paths=[]
-    try :
-        for i in os.listdir(path):
-            if os.path.isdir(i):
-                for file in os.listdir(i):
-                    if get_type(i)=='parquet':
-                        paths.append(os.path.join(path,i,file))
-            else :
-                if get_type(i)=='parquet':
-                    paths.append(os.path.join(path,i))
-        return paths
-    except Exception as e:
-        print(e)
+# Configure logger (can be centralized later)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# def combine_files(spark,paths):
-#     spark_df = spark.read.parquet(
-#     *paths)
-#     return spark_df
 
-def combine_files(paths):
-    df_list=[]
+def get_files_paths(root_path: str) -> List[str]:
+    """
+    Recursively fetch all parquet file paths from a given directory.
+
+    Args:
+        root_path (str): Root directory containing parquet files
+
+    Returns:
+        List[str]: List of full file paths
+    """
+    paths = []
     try:
-        for path in paths:
-            curr_df = pd.read_parquet(path, engine='fastparquet')
-            df_list.append(curr_df)    
-        all_df = pd.concat(df_list)
-        return all_df
-    except Exception as e:
-        print(e)
+        for root, _, files in os.walk(root_path):
+            for file in files:
+                if file.endswith(".parquet"):
+                    full_path = os.path.join(root, file)
+                    paths.append(full_path)
 
-def get_type(path): 
-        return path.split('.')[-1]
-    
+        logger.info(f"Found {len(paths)} parquet files in {root_path}")
+        return paths
+
+    except Exception as e:
+        logger.error(f"Error fetching file paths from {root_path}: {e}")
+        raise
+
+
+def combine_files(paths: List[str]) -> pd.DataFrame:
+    """
+    Combine multiple parquet files into a single DataFrame.
+
+    Args:
+        paths (List[str]): List of parquet file paths
+
+    Returns:
+        pd.DataFrame: Combined DataFrame
+    """
+    try:
+        if not paths:
+            raise ValueError("No file paths provided")
+
+        df_list = []
+        for path in paths:
+            logger.info(f"Reading file: {path}")
+            df = pd.read_parquet(path)
+            df_list.append(df)
+
+        combined_df = pd.concat(df_list, ignore_index=True)
+
+        logger.info(f"Successfully combined {len(paths)} files")
+        return combined_df
+
+    except Exception as e:
+        logger.error(f"Error combining parquet files: {e}")
+        raise
