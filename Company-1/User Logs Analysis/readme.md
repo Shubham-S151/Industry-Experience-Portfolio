@@ -1,7 +1,7 @@
 # User Log Analysis
 
 ## Overview
-This was a “Rapid exploratory analysis under constraints”.
+This was a “**Rapid exploratory analysis under constraints**”.\
 This project analyzes employee login activity using system-generated logs. The goal is to identify patterns in user traffic, detect peak login activity, and provide visual insights into login behavior across financial years.
 
 The analysis processes raw system logs, extracts relevant login events, and generates statistical and visual reports that help understand employee login trends over time.
