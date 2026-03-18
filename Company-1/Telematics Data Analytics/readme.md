@@ -1,124 +1,226 @@
-# Vehicle Telemetry Data Processing & Analysis
+# Vehicle Telemetry Data Processing & Gear Matrix Pipeline
 
-**Project Name:** Vehicle Telemetry Data Processing & Gear Matrix Creation  
-**Overview:** This project processes vehicle telemetry data to create gear matrices based on speed and torque. These matrices are used to analyze vehicle performance under various driving conditions and are automatically generated for new vehicles added to the centralized database.
+## Overview
 
----
+This project implements an **end-to-end data processing pipeline** for vehicle telemetry data to generate **gear matrices based on speed and torque distributions**.
 
-## 1. Problem Statement
-Vehicle telematics data is highly valuable for assessing vehicle performance but often requires significant processing before it can be analyzed. This project addresses the need for creating gear matrices based on telemetry data, which are then used to evaluate the vehicle’s performance across different speed and torque ranges. The matrices are automatically generated whenever a new vehicle is added to the central database.
+The pipeline is designed with a **modular, production-style architecture**, separating:
 
----
+* Data ingestion
+* Data processing
+* Feature engineering
+* Analytical matrix generation
 
-## 2. Data
-- **Type:** Structured telemetry data (vehicle speed, torque, mileage, and gear position)  
-- **Source:** Centralized vehicle telemetry data from the company’s AWS Databricks catalog  
-- **Preprocessing:** Data is already cleaned and structured by the Data Engineering team, so no further data cleaning is required in this project.
+The resulting matrices help analyze **vehicle performance across operating conditions** and can be integrated into automated workflows.
 
 ---
 
-## 3. Approach / Methodology
-- **Pipeline Steps:**
-  1. **Data Import:** Load telemetry data (e.g., speed, torque, mileage) stored in `.parquet` files from the Databricks catalog.
-  2. **Feature Engineering:** Create speed and torque bands to categorize the data.
-  3. **Matrix Creation:** Compute the total mileage and mileage percentages for each combination of speed and torque bands.
-  4. **Result Export:** Export the resulting matrices into Excel format for easy analysis by the R&D team.
-  
-- **Tools and Platforms:**
-  - **Databricks**: Used for creating and deploying jobs and pipelines.
-  - **Python**: Used for data processing with `pandas`, `numpy`, and `openpyxl`.
-  - **AWS**: The Databricks platform is hosted on AWS.
-  - **Jupyter Notebooks**: Users can run the code interactively using Jupyter if they prefer to execute it manually.
+## Problem Statement
+
+Vehicle telemetry data is high-volume and requires structured processing before meaningful insights can be derived.
+
+The objective of this project is to:
+
+* Process telemetry data from distributed storage
+* Transform raw signals into structured features
+* Generate **speed-torque gear matrices**
+* Provide **mileage distribution insights** for performance evaluation
 
 ---
 
-## 4. Experiments
-- **Baseline:** The basic matrix creation process involves calculating mileage for various speed and torque bands.
-- **Automated Process:** Whenever a new vehicle is added to the central database, the pipeline automatically triggers and generates the matrices.
-- **Tools Used:** 
-  - **Databricks**: For running jobs and setting up triggers.
-  - **Python (pandas, numpy, openpyxl)**: For processing data and exporting results.
-  
----
+## Pipeline Architecture
 
-## 5. Results
-- **Metrics:** Mileage values (total and percentage) for each combination of speed and torque, which are key to evaluating vehicle performance.
-- **Visuals:** The results are stored in Excel files with two matrices:
-  - **`Mileage_values`**: A matrix of mileage for each speed-torque combination.
-  - **`Mileage_percentages`**: A matrix showing the percentage of total mileage for each speed-torque combination.
-  
-  Users can also view the data through a Databricks dashboard created for raw telemetry data.
+The system follows a clean **data pipeline design pattern**:
+
+```
+Data Source → Data Import → Data Processing → Feature Engineering → Matrix Creation → Output
+```
+
+### Key Design Principles
+
+* **Separation of concerns**
+* **Reusable modular components**
+* **Scalable pipeline design**
+* **Configurable and testable functions**
 
 ---
 
-## 6. Deployment
-- **Automated Process:** This project is deployed on AWS Databricks and is triggered automatically whenever a new vehicle is added to the database.
-- **Interactive Execution:** Users can run the code manually using Jupyter notebooks or Python scripts, making it easy for the team to execute as needed.
-- **Dashboard:** A dashboard for visualizing raw data and insights is created on Databricks, allowing team members to interact with the data.
+## Project Structure
 
----
-
-## 7. Lessons Learned
-- **Automation Benefits:** Setting up the pipeline for automatic execution whenever new vehicles are added saves a lot of manual effort and ensures that the latest data is always processed.
-- **Working with Databricks:** Databricks' job and pipeline system allowed for seamless integration with the company’s data infrastructure, making the project more scalable and efficient.
-- **Collaboration with Data Engineering:** While I didn’t need to perform data cleaning, close collaboration with the Data Engineering team was essential in ensuring that the data was ready for analysis.
-- **Effective Data Processing:** Understanding how to group and bin continuous variables like speed and torque made the matrix creation straightforward but powerful for evaluating vehicle performance.
-
----
-
-## 8. Future Work
-- **Advanced Feature Engineering:** Future work could involve integrating additional vehicle metrics (e.g., fuel efficiency, engine load) for more comprehensive analysis.
-- **Real-time Processing:** Moving towards real-time analysis of telemetry data for immediate insights into vehicle performance.
-- **Cloud Deployment:** Consider deploying the entire pipeline and dashboard in a more accessible cloud environment, such as AWS or Azure, for easier scalability.
-
----
-
-## 9. References
-- **Datasets Used:** Internal company vehicle telemetry dataset (cleaned and structured by Data Engineering).
-- **Tools and Frameworks:** Databricks, Python, pandas, numpy, openpyxl.
-
----
-
-## Code Architecture
-
-The code structure for this project is designed to process vehicle telemetry data, create gear matrices, and export the results. Below is an overview of the architecture:
-```raw
+```bash
 Vehicle-Telemetry-Data-Processing/
 │
-├── config.py                      # Contains file paths and configuration variables (e.g., result_path, template_path)
-│
-├── data_import.py                 # Handles the loading of telemetry data from `.parquet` files
-│   ├── get_files_paths(path)      # Retrieves the file paths for telemetry data files
-│   ├── combine_files(paths)      # Combines the data files into a single DataFrame
-│   └── get_type(path)            # Returns the file type (e.g., .parquet)
-│
-├── data_cleaning.py               # Contains functions for data cleaning, conversion, and feature engineering
-│   ├── load_file_paths(root_path) # Simulates loading of file paths
-│   ├── merge_files(file_list)     # Merges data files into a single DataFrame
-│   ├── clean_data(df)             # Cleans and sorts the data
-│   ├── convert_dtypes(df)         # Ensures correct data types for columns
-│   ├── feature_engineering(df)    # Generates derived features like speed/torque bands
-│   └── process_pipeline(root_path, entity_id) # Main pipeline to process data from start to end
-│
-├── matrix_creation.py             # Creates the gear matrix by binning speed and torque
-│   ├── create_gear_matrix(df)     # Defines the bins and labels for speed and torque, then calculates mileage
-│
-├── main.py                        # Main script that executes the entire pipeline and exports results
-│   ├── main()                     # Loads the data, processes it, creates matrices, and exports them
-│   └── export_result(data_dict, ...) # Exports the results into an Excel file
-│
-└── requirements.txt               # Python dependencies for the project (e.g., pandas, numpy, openpyxl)
+├── data_import.py         # Data ingestion (file discovery + parquet loading)
+├── data_cleaning.py       # Data validation, cleaning, feature engineering
+├── matrix_creation.py     # Gear matrix computation logic
+├── main.py                # Pipeline orchestration (CLI-based execution)
+├── config.py              # Configuration (paths, templates)
+├── requirements.txt       # Dependencies
 ```
----
-## Improvements
 
-- Refactored data ingestion module for scalability and robustness
-- Implemented recursive file loading using os.walk
-- Added structured logging for better debugging
 ---
 
-## Confidentiality and Data Usage
+## Pipeline Workflow
 
-This project does not use any proprietary, confidential, or sensitive data. The datasets used in this project are either simulated, anonymized, or provided as placeholders for the sake of illustrating the data processing pipeline and methodology.
+### 1. Data Ingestion
 
-All input files, configuration templates, and reference data are either empty or mock datasets, ensuring that no real company or user data is exposed or used. The project serves as a demonstration of data processing techniques for vehicle telemetry analysis, showcasing how data could be handled, processed, and visualized in a production-like environment.
+* Reads telemetry data from `.parquet` files
+* Supports batch loading from directories
+
+### 2. Data Processing
+
+* Data validation
+* Type conversion
+* Sorting and cleaning
+* Feature engineering
+
+### 3. Feature Engineering
+
+* Step delta computation
+* Derived metrics generation
+* Config-driven transformations
+
+### 4. Gear Matrix Creation
+
+* Binning:
+
+  * Speed → fixed intervals
+  * Torque → fixed intervals
+* Aggregation:
+
+  * Total mileage per bin
+* Output:
+
+  * Mileage matrix
+  * Mileage percentage matrix
+
+---
+
+## Output
+
+The pipeline generates:
+
+### 1. Mileage Matrix
+
+* Absolute mileage across speed-torque combinations
+
+### 2. Mileage Percentage Matrix
+
+* Normalized distribution of mileage
+
+### 3. Metadata
+
+* Total mileage
+* Speed band labels
+* Torque band labels
+
+---
+
+## How to Run
+
+### CLI Execution
+
+```bash
+python main.py --data_path <path_to_data> --entity_id 1
+```
+
+### Example
+
+```bash
+python main.py --data_path ./data --entity_id 1
+```
+
+---
+
+## Sample Output
+
+```
+Matrix Summary:
+Total Mileage: 12543.67
+Matrix Shape: (21, 29)
+```
+
+---
+
+## Tech Stack
+
+* **Python**
+* **pandas**
+* **NumPy**
+* **openpyxl**
+* **Logging**
+
+---
+
+## Key Features
+
+* Modular pipeline architecture
+* Reusable processing functions
+* Config-driven transformations
+* CLI-based execution
+* Structured logging
+* Scalable design
+
+---
+
+## Important Notes
+
+* Ensure required columns exist in dataset:
+
+  * `Spd` (Speed)
+  * `Trq` (Torque)
+  * `Mileage`
+
+* Alternatively, update column mappings in:
+
+```python
+create_gear_matrix(df, speed_col=..., torque_col=..., mileage_col=...)
+```
+
+---
+
+## Future Improvements
+
+* Real-time telemetry processing (streaming pipelines)
+* Dashboard integration (Power BI / Streamlit)
+* Cloud-native deployment (AWS / Azure)
+* MLOps integration for predictive analytics
+* Config-driven pipeline using YAML
+
+---
+
+## Lessons Learned
+
+* Importance of **modular pipeline design**
+* Benefits of **separating ingestion and transformation layers**
+* Handling **high-volume telemetry data efficiently**
+* Designing **reusable analytical components**
+
+---
+
+## Data Privacy
+
+This project uses:
+
+* Synthetic data
+* Anonymized structures
+
+No proprietary or sensitive data is included.
+
+---
+
+## Portfolio Value
+
+This project demonstrates:
+
+* Data Engineering fundamentals
+* Analytical pipeline design
+* Production-style Python coding
+* Real-world telemetry data processing
+
+---
+
+## Author
+
+Shubham
+Data Science & Machine Learning Enthusiast
